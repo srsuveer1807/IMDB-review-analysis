@@ -15,15 +15,20 @@ reverse_word_index={value:key for key,value in word_index.items()}
 
 import h5py
 
-# Load the model file
+# Load the model file with training fallback
 model_path = 'simpleRNN.h5'
 
 try:
-    model = load_model('simpleRNN.h5')
+    model = load_model(model_path)
     print("Model loaded successfully")
-except OSError as e:
-    st.error("Error: Could not find or load the model file 'simpleRNN.h5'. Please ensure the model file exists in the correct location.")
-    st.stop()
+except (OSError, IOError) as e:
+    st.info("Model not found. Training new model...")
+    try:
+        model = train_and_save_model()
+        st.success("Model trained and saved successfully!")
+    except Exception as e:
+        st.error(f"Error during model training: {str(e)}")
+        st.stop()
 
 # Remove the h5py file handling block as it's not necessary if we're using load_model
 # The following section can be removed:
